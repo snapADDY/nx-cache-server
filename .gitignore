@@ -1,0 +1,11 @@
+# Build output
+bin/
+
+# Go workspace files (local multi-module setups)
+go.work
+go.work.sum
+
+# Editor and OS files
+.idea/
+.vscode/
+.DS_Store
