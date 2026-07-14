@@ -1,0 +1,14 @@
+apiVersion: v2
+type: application
+name: nx-cache-server
+description: Custom cache server for NX using S3 Buckets
+version: 0.0.1
+appVersion: "main-81623f7"
+home: https://github.com/snapaddy/nx-cache-server
+maintainers:
+  - name: sberz
+    email: simon@berz.me
+  - name: snapAddy
+    email: dev@snapaddy.com
+sources:
+  - https://github.com/snapaddy/nx-cache-server

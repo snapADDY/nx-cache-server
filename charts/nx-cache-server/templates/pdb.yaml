@@ -1,0 +1,25 @@
+{{- if .Values.podDisruptionBudget.enabled  }}
+
+{{- if and .Values.podDisruptionBudget.minAvailable .Values.podDisruptionBudget.maxUnavailable }}
+{{- fail "Only one of minAvailable or maxUnavailable should be defined for PodDisruptionBudget" }}
+{{- end }}
+
+{{- if not (or .Values.podDisruptionBudget.minAvailable .Values.podDisruptionBudget.maxUnavailable) }}
+{{- fail "Either minAvailable or maxUnavailable must be defined for PodDisruptionBudget" }}
+{{- end }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "nx-cache-server.fullname" . }}
+  labels:
+    {{- include "nx-cache-server.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "nx-cache-server.selectorLabels" . | nindent 6 }}
+  {{- if .Values.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.podDisruptionBudget.minAvailable }}
+  {{- else if .Values.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+{{- end }}

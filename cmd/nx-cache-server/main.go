@@ -73,9 +73,17 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 		return fmt.Errorf("create api server: %w", err)
 	}
 
+	mux := http.NewServeMux()
+	// Unauthenticated liveness/readiness endpoint for Kubernetes probes,
+	// outside the OpenAPI surface and request logging.
+	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+	mux.Handle("/", handler.RequestLogger(logger, srv))
+
 	httpSrv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.Port),
-		Handler:           handler.RequestLogger(logger, srv),
+		Handler:           mux,
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,
 		// Deliberately no ReadTimeout/WriteTimeout: artifact uploads and

@@ -31,3 +31,20 @@ jobs:
         run: |
           make generate
           git diff --exit-code internal/api
+
+
+  check-chart:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+
+      - name: Lint Helm Chart
+        run: helm lint charts/nx-cache-server
+
+      - name: Template Helm Chart
+        run: helm template my-release charts/nx-cache-server
