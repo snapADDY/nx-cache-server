@@ -49,8 +49,7 @@ func (s *Store) Get(ctx context.Context, key string) (io.ReadCloser, int64, erro
 		Key:    aws.String(s.objectKey(key)),
 	})
 	if err != nil {
-		var noSuchKey *types.NoSuchKey
-		if errors.As(err, &noSuchKey) {
+		if _, ok := errors.AsType[*types.NoSuchKey](err); ok {
 			return nil, 0, fmt.Errorf("get object %q: %w", key, store.ErrNotFound)
 		}
 
@@ -74,8 +73,7 @@ func (s *Store) Put(ctx context.Context, key string, size int64, r io.Reader) er
 		IfNoneMatch: aws.String("*"),
 	})
 	if err != nil {
-		var apiErr smithy.APIError
-		if errors.As(err, &apiErr) {
+		if apiErr, ok := errors.AsType[smithy.APIError](err); ok {
 			switch apiErr.ErrorCode() {
 			case "PreconditionFailed", "ConditionalRequestConflict":
 				return fmt.Errorf("put object %q: %w", key, store.ErrAlreadyExists)

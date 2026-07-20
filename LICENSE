@@ -1,6 +1,9 @@
 MIT License
 
 Copyright (c) 2025 Simon Berz
+(A lot of code for the initial implementation was taken from https://github.com/sberz/ephemeral-envs)
+
+Copyright (c) 2026 snapAddy GmbH
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

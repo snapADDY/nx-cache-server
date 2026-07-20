@@ -15,7 +15,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	v4 "github.com/aws/aws-sdk-go-v2/aws/signer/v4"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
@@ -27,6 +26,8 @@ import (
 const (
 	readHeaderTimeout = 10 * time.Second
 	idleTimeout       = 2 * time.Minute
+	readTimeout       = 2 * time.Minute
+	writeTimeout      = 2 * time.Minute
 	shutdownTimeout   = 30 * time.Second
 )
 
@@ -66,7 +67,7 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 
 	srv, err := api.NewServer(
 		handler.New(st, logger),
-		handler.NewSecurity(cfg.NXAccessToken, cfg.ReadOnlyToken),
+		handler.NewSecurity(cfg.AccessToken, cfg.ReadOnlyToken),
 		api.WithErrorHandler(handler.NewErrorHandler(logger)),
 	)
 	if err != nil {
@@ -86,8 +87,8 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 		Handler:           mux,
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,
-		// Deliberately no ReadTimeout/WriteTimeout: artifact uploads and
-		// downloads are long-lived streams of unbounded size.
+		ReadTimeout:       readTimeout,
+		WriteTimeout:      writeTimeout,
 	}
 
 	errCh := make(chan error, 1)
@@ -132,15 +133,6 @@ func newS3Store(ctx context.Context, cfg *serverConfig) (*s3store.Store, error) 
 		}
 
 		o.UsePathStyle = cfg.S3UsePathStyle
-		// The SDK's default flexible checksums require TLS plus trailing
-		// checksums for unseekable streams, which breaks streaming uploads
-		// to plain-HTTP endpoints such as local MinIO. Artifacts are
-		// content-addressed by their hash, so skip optional checksums.
-		o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
-		// Payload signing likewise requires a seekable body. Over TLS the
-		// SDK already signs with UNSIGNED-PAYLOAD, so this only changes
-		// behavior for plain-HTTP endpoints.
-		o.APIOptions = append(o.APIOptions, v4.SwapComputePayloadSHA256ForUnsignedPayloadMiddleware)
 	})
 
 	return s3store.New(client, cfg.Bucket, cfg.StoragePrefix), nil

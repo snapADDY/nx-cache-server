@@ -1,11 +1,6 @@
 # nx-cache-server
 
-A self-hosted [Nx remote cache](https://nx.dev/recipes/running-tasks/self-hosted-caching) server backed by S3 (or any S3-compatible storage such as MinIO). Implements the official Nx custom remote cache OpenAPI specification: task outputs are uploaded once and shared across CI agents and developer machines.
-
-- Streams artifacts between client and S3 without buffering them in memory
-- Atomic overwrite protection via S3 conditional writes (`If-None-Match: "*"`)
-- Bearer-token auth with an optional read-only token for consumers that must not write
-- Structured JSON logging (slog), graceful shutdown on SIGINT/SIGTERM
+A self-hosted [Nx remote cache](https://nx.dev/recipes/running-tasks/self-hosted-caching) server backed by S3. Implements the official Nx custom remote cache OpenAPI specification.
 
 ## Minimal usage
 

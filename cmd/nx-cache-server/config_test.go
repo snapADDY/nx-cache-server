@@ -61,7 +61,7 @@ func TestParseConfigFromEnv(t *testing.T) {
 		Port:           9090,
 		Bucket:         "env-bucket",
 		StoragePrefix:  "nx",
-		NXAccessToken:  "env-secret",
+		AccessToken:    "env-secret",
 		ReadOnlyToken:  "env-ro",
 		S3Region:       "eu-central-1",
 		S3Endpoint:     "http://localhost:9000",
@@ -90,8 +90,8 @@ func TestParseConfigFlagBeatsEnv(t *testing.T) {
 		t.Errorf("Bucket = %q, want %q (flag over env)", cfg.Bucket, "flag-bucket")
 	}
 
-	if cfg.NXAccessToken != "env-secret" {
-		t.Errorf("NXAccessToken = %q, want env value", cfg.NXAccessToken)
+	if cfg.AccessToken != "env-secret" {
+		t.Errorf("NXAccessToken = %q, want env value", cfg.AccessToken)
 	}
 }
 

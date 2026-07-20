@@ -26,8 +26,8 @@ type serverConfig struct {
 	// StoragePrefix is the prefix to use for storing cache files in the S3 bucket.
 	StoragePrefix string
 
-	// NXAccessToken is the read-write access token for the NX API.
-	NXAccessToken string
+	// AccessToken is the read-write access token for the NX API.
+	AccessToken string
 
 	// ReadOnlyToken optionally grants read-only access; writes with it return 403.
 	ReadOnlyToken string
@@ -62,7 +62,7 @@ func parseConfig(args []string, stderr io.Writer) (*serverConfig, error) {
 	fs.IntVar(&cfg.Port, "port", 8080, "port to listen on")
 	fs.StringVar(&cfg.Bucket, "bucket", "", "S3 bucket for cache artifacts, required")
 	fs.StringVar(&cfg.StoragePrefix, "storage-prefix", "", "key prefix inside the S3 bucket")
-	fs.StringVar(&cfg.NXAccessToken, "access-token", "", "read-write bearer token, required; prefer the env var over the flag")
+	fs.StringVar(&cfg.AccessToken, "access-token", "", "read-write bearer token, required; prefer the env var over the flag")
 	fs.StringVar(&cfg.ReadOnlyToken, "read-only-token", "", "optional read-only bearer token; prefer the env var over the flag")
 	fs.StringVar(&cfg.S3Region, "s3-region", "", "AWS region, falls back to the SDK default chain")
 	fs.StringVar(&cfg.S3Endpoint, "s3-endpoint", "", "custom S3 endpoint, e.g. for MinIO")
@@ -128,11 +128,11 @@ func (c *serverConfig) validate() error {
 		return errMissingBucket
 	}
 
-	if c.NXAccessToken == "" {
+	if c.AccessToken == "" {
 		return errMissingAccessToken
 	}
 
-	if c.ReadOnlyToken != "" && c.ReadOnlyToken == c.NXAccessToken {
+	if c.ReadOnlyToken != "" && c.ReadOnlyToken == c.AccessToken {
 		return errTokensEqual
 	}
 
