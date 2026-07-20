@@ -41,6 +41,10 @@ type serverConfig struct {
 	// LogLevel is the log level to use for the cache server.
 	LogLevel slog.Level
 
+	// MaxUploadBytes caps the size of a single uploaded artifact.
+	// A value <= 0 disables the limit.
+	MaxUploadBytes int64
+
 	// Port is the port to listen on for the cache server.
 	Port int
 
@@ -67,6 +71,7 @@ func parseConfig(args []string, stderr io.Writer) (*serverConfig, error) {
 	fs.StringVar(&cfg.S3Region, "s3-region", "", "AWS region, falls back to the SDK default chain")
 	fs.StringVar(&cfg.S3Endpoint, "s3-endpoint", "", "custom S3 endpoint, e.g. for MinIO")
 	fs.BoolVar(&cfg.S3UsePathStyle, "s3-use-path-style", false, "use path-style S3 addressing, needed for MinIO")
+	fs.Int64Var(&cfg.MaxUploadBytes, "max-upload-bytes", 0, "maximum size in bytes of a single uploaded artifact; 0 disables the limit")
 
 	fs.VisitAll(func(f *flag.Flag) {
 		f.Usage += fmt.Sprintf(" (env %s)", envName(f.Name))

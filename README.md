@@ -43,6 +43,7 @@ Every option can be set as a CLI flag or an environment variable. Precedence: **
 | `-s3-region`         | `NX_CACHE_S3_REGION`         | —       | no       | AWS region; falls back to the SDK default chain (`AWS_REGION`, profile, IMDS)                                            |
 | `-s3-endpoint`       | `NX_CACHE_S3_ENDPOINT`       | —       | no       | Custom S3 endpoint URL, e.g. `http://localhost:9000` for alternative S3 services                                         |
 | `-s3-use-path-style` | `NX_CACHE_S3_USE_PATH_STYLE` | `false` | no       | Use path-style addressing (`endpoint/bucket/key`)                                                                        |
+| `-max-upload-bytes`  | `NX_CACHE_MAX_UPLOAD_BYTES`  | `0`     | no       | Maximum size in bytes of a single uploaded artifact; `0` disables the limit                                             |
 
 Run `nx-cache-server -h` for the same list from the binary.
 
@@ -63,8 +64,8 @@ The server implements the Nx custom remote cache spec (`openapi.json`):
 
 | Method                 | Path                   | Responses                                                                           |
 | ---------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
-| `PUT /v1/cache/{hash}` | Upload a task output   | `200` stored, `401` invalid token, `403` read-only token, `409` hash already exists |
-| `GET /v1/cache/{hash}` | Download a task output | `200` artifact stream, `403` forbidden, `404` not found                             |
+| `PUT /v1/cache/{hash}` | Upload a task output   | `200` stored, `400` invalid hash or missing Content-Length, `401` invalid token, `403` read-only token, `409` hash already exists, `413` exceeds max upload size |
+| `GET /v1/cache/{hash}` | Download a task output | `200` artifact stream, `400` invalid hash, `403` forbidden, `404` not found                             |
 
 Both endpoints require an `Authorization: Bearer <token>` header.
 
@@ -74,6 +75,5 @@ Both endpoints require an `Authorization: Bearer <token>` header.
 make build     # compile to bin/nx-cache-server
 make test      # go test -race -cover ./...
 make lint      # golangci-lint run
-make generate  # regenerate internal/api from openapi.json (ogen)
 make docker    # multi-arch image build (linux/amd64, linux/arm64)
 ```

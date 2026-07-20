@@ -27,12 +27,6 @@ jobs:
       - name: Test
         run: make test
 
-      - name: Check generated code is up to date
-        run: |
-          make generate
-          git diff --exit-code internal/api
-
-
   check-chart:
     runs-on: ubuntu-latest
     permissions:

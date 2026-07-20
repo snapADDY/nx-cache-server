@@ -18,8 +18,7 @@ import (
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
-	"github.com/snapaddy/nx-cache-server/internal/api"
-	"github.com/snapaddy/nx-cache-server/internal/handler"
+	"github.com/snapaddy/nx-cache-server/internal/server"
 	s3store "github.com/snapaddy/nx-cache-server/internal/store/s3"
 )
 
@@ -65,26 +64,9 @@ func run(ctx context.Context, args []string, stdout, stderr io.Writer) error {
 		return err
 	}
 
-	srv, err := api.NewServer(
-		handler.New(st, logger),
-		handler.NewSecurity(cfg.AccessToken, cfg.ReadOnlyToken),
-		api.WithErrorHandler(handler.NewErrorHandler(logger)),
-	)
-	if err != nil {
-		return fmt.Errorf("create api server: %w", err)
-	}
-
-	mux := http.NewServeMux()
-	// Unauthenticated liveness/readiness endpoint for Kubernetes probes,
-	// outside the OpenAPI surface and request logging.
-	mux.HandleFunc("/health", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	})
-	mux.Handle("/", handler.RequestLogger(logger, srv))
-
 	httpSrv := &http.Server{
 		Addr:              fmt.Sprintf(":%d", cfg.Port),
-		Handler:           mux,
+		Handler:           server.NewServerHandler(st, cfg.AccessToken, cfg.ReadOnlyToken, cfg.MaxUploadBytes),
 		ReadHeaderTimeout: readHeaderTimeout,
 		IdleTimeout:       idleTimeout,
 		ReadTimeout:       readTimeout,

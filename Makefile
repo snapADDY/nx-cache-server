@@ -16,10 +16,6 @@ lint:
 fmt:
 	golangci-lint fmt
 
-.PHONY: generate
-generate:
-	go generate ./...
-
 # Multi-arch build; stays in the build cache. Add --push (and a registry
 # tag) to publish, or use docker-load for a locally runnable image.
 .PHONY: docker
