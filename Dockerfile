@@ -1,6 +1,6 @@
 # Build on the native platform and cross-compile for the target, which is
 # much faster than emulating the Go compiler under QEMU.
-FROM --platform=$BUILDPLATFORM golang:1.26-alpine AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS build
 ARG TARGETOS TARGETARCH
 WORKDIR /src
 COPY go.mod go.sum ./
